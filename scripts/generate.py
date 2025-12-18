@@ -113,10 +113,6 @@ def generate_python(spec: dict) -> str:
         full_name = info.get("name", name)
         lines.append(f'    {name.upper()} = "{name}"  # {full_name}')
     
-    lines.extend(['', '', 'class HoldType(str, Enum):', '    """Types of holds for FERMATA signals."""'])
-    for hold in ["human", "governance", "resource", "quality"]:
-        lines.append(f'    {hold.upper()} = "{hold}"')
-    
     lines.append('')
     return '\n'.join(lines)
 
@@ -156,11 +152,6 @@ def generate_typescript(spec: dict) -> str:
         full_name = info.get("name", name)
         lines.append(f"    /** {full_name} */")
         lines.append(f"    {name.upper()} = '{name}',")
-    lines.append('}')
-    
-    lines.extend(['', 'export enum HoldType {'])
-    for hold in ["human", "governance", "resource", "quality"]:
-        lines.append(f"    {hold.upper()} = '{hold}',")
     lines.append('}')
     
     lines.append('')
@@ -208,12 +199,6 @@ def generate_go(spec: dict) -> str:
         full_name = info.get("name", name)
         cap_name = name.upper()
         lines.append(f'\tDynamics{cap_name} DynamicsLevel = "{name}" // {full_name}')
-    lines.append(')')
-    
-    lines.extend(['', '// HoldType for FERMATA signals.', 'type HoldType string', '', 'const ('])
-    for hold in ["human", "governance", "resource", "quality"]:
-        cap_name = hold.capitalize()
-        lines.append(f'\tHold{cap_name} HoldType = "{hold}"')
     lines.append(')')
     
     lines.append('')
@@ -275,20 +260,6 @@ def generate_rust(spec: dict) -> str:
         cap_name = name.upper()
         lines.append(f'    /// {full_name}')
         if name == "mf":
-            lines.append('    #[default]')
-        lines.append(f'    {cap_name},')
-    lines.append('}')
-    
-    lines.extend([
-        '',
-        '/// Types of holds for FERMATA signals.',
-        '#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]',
-        '#[serde(rename_all = "lowercase")]',
-        'pub enum HoldType {'
-    ])
-    for i, hold in enumerate(["human", "governance", "resource", "quality"]):
-        cap_name = hold.capitalize()
-        if i == 0:
             lines.append('    #[default]')
         lines.append(f'    {cap_name},')
     lines.append('}')

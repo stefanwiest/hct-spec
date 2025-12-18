@@ -50,26 +50,16 @@ jobs:
           path: hct-mcp-signals
 
       - name: Sync Python types
-        run: |
-          # Copy generated Python to hct-mcp-signals
-          # Note: The actual packages have more code, so we sync constants only
-          echo "# Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/python/hct_mcp_signals/_generated.py
-          cat hct-spec/generated/python/types.py >> hct-mcp-signals/python/hct_mcp_signals/_generated.py
+        run: cp hct-spec/generated/python/types.py hct-mcp-signals/python/hct_mcp_signals/spec.py
 
       - name: Sync TypeScript types
-        run: |
-          echo "// Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/npm/src/_generated.ts
-          cat hct-spec/generated/typescript/types.ts >> hct-mcp-signals/npm/src/_generated.ts
+        run: cp hct-spec/generated/typescript/types.ts hct-mcp-signals/npm/src/spec.ts
 
       - name: Sync Go types
-        run: |
-          echo "// Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/go/_generated.go
-          cat hct-spec/generated/go/types.go >> hct-mcp-signals/go/_generated.go
+        run: cp hct-spec/generated/go/types.go hct-mcp-signals/go/spec.go
 
       - name: Sync Rust types
-        run: |
-          echo "//! Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/rust/src/_generated.rs
-          cat hct-spec/generated/rust/types.rs >> hct-mcp-signals/rust/src/_generated.rs
+        run: cp hct-spec/generated/rust/types.rs hct-mcp-signals/rust/src/spec.rs
 
       - name: Sync JSON Schema
         run: cp hct-spec/schema.json hct-mcp-signals/schema.json
