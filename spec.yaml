@@ -1,0 +1,31 @@
+version: "1.0.0"
+
+performance:
+  tempo:
+    description: "Execution urgency / expected response timing"
+    values:
+      largo: { description: "Very slow (~60s)", priority: "batch", latency_ms: 60000 }
+      andante: { description: "Walking pace (~30s)", priority: "low", latency_ms: 30000 }
+      moderato: { description: "Moderate (~15s)", priority: "normal", latency_ms: 15000 }
+      allegro: { description: "Fast (~5s)", priority: "high", latency_ms: 5000 }
+      presto: { description: "Very fast (~1s)", priority: "realtime", latency_ms: 1000 }
+    default: "moderato"
+
+  dynamics:
+    description: "Resource intensity / compute budget"
+    values:
+      pp: { name: "pianissimo", budget_multiplier: 0.25 }
+      p: { name: "piano", budget_multiplier: 0.5 }
+      mf: { name: "mezzo-forte", budget_multiplier: 1.0 }
+      f: { name: "forte", budget_multiplier: 1.5 }
+      ff: { name: "fortissimo", budget_multiplier: 2.0 }
+    default: "mf"
+
+signals:
+  cue: { description: "Trigger activation", scope: ["mcp", "a2a"] }
+  fermata: { description: "Hold for approval", scope: ["mcp", "a2a"] }
+  attacca: { description: "Immediate transition", scope: ["mcp", "a2a"] }
+  vamp: { description: "Repeat until condition", scope: ["mcp", "a2a"] }
+  caesura: { description: "Full stop", scope: ["mcp", "a2a"] }
+  tacet: { description: "Agent inactive", scope: ["a2a"] }
+  downbeat: { description: "Global sync point", scope: ["a2a"] }
