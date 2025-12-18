@@ -20,38 +20,93 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          pip install pyyaml jsonschema
+        run: pip install pyyaml
 
-      - name: Generate schema.json
+      - name: Generate all outputs
         run: python scripts/generate.py
 
-      - name: Commit schema.json
+      - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add schema.json
-          git diff --staged --quiet || git commit -m "chore: auto-generate schema.json from spec.yaml"
+          git add schema.json generated/
+          git diff --staged --quiet || git commit -m "chore: auto-generate from spec.yaml"
           git push
 
-  sync-downstream:
+  sync-hct-mcp-signals:
     needs: generate
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
     steps:
-      - name: Trigger hct-a2a sync
-        uses: peter-evans/repository-dispatch@v2
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }}
-          repository: stefanwiest/hct-a2a
-          event-type: spec-updated
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          path: hct-spec
 
-      - name: Trigger hct-mcp-signals sync
-        uses: peter-evans/repository-dispatch@v2
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }}
           repository: stefanwiest/hct-mcp-signals
-          event-type: spec-updated
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          token: ${{ secrets.PAT_TOKEN }}
+          path: hct-mcp-signals
+
+      - name: Sync Python types
+        run: |
+          # Copy generated Python to hct-mcp-signals
+          # Note: The actual packages have more code, so we sync constants only
+          echo "# Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/python/hct_mcp_signals/_generated.py
+          cat hct-spec/generated/python/types.py >> hct-mcp-signals/python/hct_mcp_signals/_generated.py
+
+      - name: Sync TypeScript types
+        run: |
+          echo "// Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/npm/src/_generated.ts
+          cat hct-spec/generated/typescript/types.ts >> hct-mcp-signals/npm/src/_generated.ts
+
+      - name: Sync Go types
+        run: |
+          echo "// Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/go/_generated.go
+          cat hct-spec/generated/go/types.go >> hct-mcp-signals/go/_generated.go
+
+      - name: Sync Rust types
+        run: |
+          echo "//! Auto-generated from hct-spec - DO NOT EDIT" > hct-mcp-signals/rust/src/_generated.rs
+          cat hct-spec/generated/rust/types.rs >> hct-mcp-signals/rust/src/_generated.rs
+
+      - name: Sync JSON Schema
+        run: cp hct-spec/schema.json hct-mcp-signals/schema.json
+
+      - name: Commit and push to hct-mcp-signals
+        run: |
+          cd hct-mcp-signals
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: sync from hct-spec"
+          git push
+
+  sync-hct-a2a:
+    needs: generate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: hct-spec
+
+      - uses: actions/checkout@v4
+        with:
+          repository: stefanwiest/hct-a2a
+          token: ${{ secrets.PAT_TOKEN }}
+          path: hct-a2a
+
+      - name: Sync JSON Schema
+        run: cp hct-spec/schema.json hct-a2a/schema.json
+
+      - name: Commit and push to hct-a2a
+        run: |
+          cd hct-a2a
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: sync from hct-spec"
+          git push
