@@ -265,7 +265,100 @@ def generate_rust(spec: dict) -> str:
     lines.append('}')
     
     lines.append('')
+
     return '\n'.join(lines)
+
+def generate_protobuf(spec: dict) -> str:
+    """Generate Protobuf definition"""
+    signals = spec.get("signals", {})
+    tempo = spec.get("performance", {}).get("tempo", {}).get("values", {})
+    dynamics = spec.get("performance", {}).get("dynamics", {}).get("values", {})
+    
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    
+    lines = [
+        'syntax = "proto3";',
+        '',
+        'package hct.v1;',
+        '',
+        'option go_package = "github.com/stefanwiest/hct-a2a/spec/v1;hct";',
+        '',
+        '// HCT Signal Types - Auto-generated from hct-spec/spec.yaml',
+        f'// Generated: {timestamp}',
+        '//',
+        '// DO NOT EDIT MANUALLY - Edit spec.yaml and regenerate.',
+        '',
+        '// HCT A2A Extension Signal',
+        'message HctSignal {',
+        '  SignalType signal = 1;',
+        '  string from = 2;',
+        '  PerformanceDetails performance = 3;',
+        '  ConditionDetails conditions = 4;',
+        '  ContextDetails context = 5;',
+        '}',
+        '',
+        'enum SignalType {',
+        '  SIGNAL_TYPE_UNSPECIFIED = 0;',
+    ]
+    
+    for i, (name, info) in enumerate(signals.items()):
+        desc = info.get("description", "")
+        lines.append(f'  {name.upper()} = {i + 1}; // {desc}')
+    lines.append('}')
+    
+    lines.extend([
+        '',
+        'message PerformanceDetails {',
+        '  Tempo tempo = 1;',
+        '  Dynamics dynamics = 2;',
+        '  int32 urgency = 3; // 1-10',
+        '  int32 timeout_ms = 4;',
+        '}',
+        '',
+        'enum Tempo {',
+        '  TEMPO_UNSPECIFIED = 0;'
+    ])
+    
+    for i, (name, info) in enumerate(tempo.items()):
+        desc = info.get("description", "")
+        lines.append(f'  {name.upper()} = {i + 1}; // {desc}')
+    lines.append('}')
+    
+    lines.extend([
+        '',
+        'enum Dynamics {',
+        '  DYNAMICS_UNSPECIFIED = 0;'
+    ])
+    
+    for i, (name, info) in enumerate(dynamics.items()):
+        full_name = info.get("name", name)
+        lines.append(f'  {name.upper()} = {i + 1}; // {full_name}')
+    lines.append('}')
+    
+    lines.extend([
+        '',
+        'message ConditionDetails {',
+        '  HoldType hold_type = 1;',
+        '  float quality_threshold = 2;',
+        '  string repeat_until = 3;',
+        '}',
+        '',
+        'enum HoldType {',
+        '  HOLD_TYPE_UNSPECIFIED = 0;',
+        '  HUMAN = 1;',
+        '  GOVERNANCE = 2;',
+        '  RESOURCE = 3;',
+        '  QUALITY = 4;',
+        '}',
+        '',
+        'message ContextDetails {',
+        '  string movement = 1;',
+        '  repeated string objectives = 2;',
+        '}'
+    ])
+    
+    return '\n'.join(lines)
+
 
 
 def main():
@@ -310,6 +403,13 @@ def main():
     with open(rust_dir / "types.rs", "w") as f:
         f.write(generate_rust(spec))
     print(f"✓ Generated {rust_dir}/types.rs")
+    
+    # Protobuf
+    proto_dir = gen_dir / "protobuf"
+    proto_dir.mkdir(exist_ok=True)
+    with open(proto_dir / "hct.proto", "w") as f:
+        f.write(generate_protobuf(spec))
+    print(f"✓ Generated {proto_dir}/hct.proto")
     
     # Summary
     signals = list(spec.get("signals", {}).keys())

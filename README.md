@@ -44,8 +44,12 @@ When `spec.yaml` changes, CI automatically generates:
 - **Python**: `generated/python/types.py` → synced to `hct-mcp-signals/python/hct_mcp_signals/spec.py`
 - **TypeScript**: `generated/typescript/types.ts` → synced to `hct-mcp-signals/npm/src/spec.ts`
 - **Go**: `generated/go/types.go` → synced to `hct-mcp-signals/go/spec.go`
-- **Rust**: `generated/rust/types.rs` → synced to `hct-mcp-signals/rust/src/spec.rs`
-- **JSON Schema**: `schema.json` → synced to both packages
+- **Python**: Enums and Pydantic models
+- **TypeScript**: Enums and Interface definitions
+- **Go**: Constants and Types
+- **Rust**: Serde-compatible Enums
+- **Protobuf**: `.proto` definitions (for gRPC/A2A)
+- **JSON Schema**: Draft 2020-12 schema.json` → synced to both packages
 
 ## Downstream Packages
 

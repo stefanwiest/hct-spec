@@ -1,6 +1,6 @@
 """
 HCT Signal Types - Auto-generated from hct-spec/spec.yaml
-Generated: 2025-12-18T10:37:34.791657Z
+Generated: 2025-12-18T13:31:32.569979Z
 
 DO NOT EDIT MANUALLY - Edit spec.yaml and regenerate.
 """

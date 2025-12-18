@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package hct.v1;
+
+option go_package = "github.com/stefanwiest/hct-a2a/spec/v1;hct";
+
+// HCT Signal Types - Auto-generated from hct-spec/spec.yaml
+// Generated: 2025-12-18T13:31:32.570233Z
+//
+// DO NOT EDIT MANUALLY - Edit spec.yaml and regenerate.
+
+// HCT A2A Extension Signal
+message HctSignal {
+  SignalType signal = 1;
+  string from = 2;
+  PerformanceDetails performance = 3;
+  ConditionDetails conditions = 4;
+  ContextDetails context = 5;
+}
+
+enum SignalType {
+  SIGNAL_TYPE_UNSPECIFIED = 0;
+  CUE = 1; // Trigger activation
+  FERMATA = 2; // Hold for approval
+  ATTACCA = 3; // Immediate transition
+  VAMP = 4; // Repeat until condition
+  CAESURA = 5; // Full stop
+  TACET = 6; // Agent inactive
+  DOWNBEAT = 7; // Global sync point
+}
+
+message PerformanceDetails {
+  Tempo tempo = 1;
+  Dynamics dynamics = 2;
+  int32 urgency = 3; // 1-10
+  int32 timeout_ms = 4;
+}
+
+enum Tempo {
+  TEMPO_UNSPECIFIED = 0;
+  LARGO = 1; // Very slow (~60s)
+  ANDANTE = 2; // Walking pace (~30s)
+  MODERATO = 3; // Moderate (~15s)
+  ALLEGRO = 4; // Fast (~5s)
+  PRESTO = 5; // Very fast (~1s)
+}
+
+enum Dynamics {
+  DYNAMICS_UNSPECIFIED = 0;
+  PP = 1; // pianissimo
+  P = 2; // piano
+  MF = 3; // mezzo-forte
+  F = 4; // forte
+  FF = 5; // fortissimo
+}
+
+message ConditionDetails {
+  HoldType hold_type = 1;
+  float quality_threshold = 2;
+  string repeat_until = 3;
+}
+
+enum HoldType {
+  HOLD_TYPE_UNSPECIFIED = 0;
+  HUMAN = 1;
+  GOVERNANCE = 2;
+  RESOURCE = 3;
+  QUALITY = 4;
+}
+
+message ContextDetails {
+  string movement = 1;
+  repeated string objectives = 2;
+}
