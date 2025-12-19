@@ -1,60 +1,60 @@
 # HCT Specification
 
-**THE single source of truth for HCT protocol elements.**
+**The Single Source of Truth for Harmonic Coordination Theory signals.**
 
 [![CI](https://github.com/stefanwiest/hct-spec/actions/workflows/generate.yml/badge.svg)](https://github.com/stefanwiest/hct-spec/actions)
 
 ---
 
-## Overview
+## 📖 Documentation
 
-This repository defines the canonical specification for Harmonic Coordination Theory signals and performance parameters. All downstream packages are auto-generated from this spec.
+The full semantic specification, including signal definitions, protocol bindings, and usage guides, is available at:
 
-## Files
+👉 **[HCT Signal Specification (stefanwiest.de)](https://stefanwiest.de/research/specification)**
+
+---
+
+## 🏗️ Architecture
+
+This repository defines the canonical data structures for HCT. It serves as the build root for the entire ecosystem.
+
+```mermaid
+flowchart LR
+    Spec[spec.yaml] -->|Generate| Gen[Generated Code]
+    Gen -->|Sync| Py[Python SDK]
+    Gen -->|Sync| TS[TypeScript SDK]
+    Gen -->|Sync| Go[Go SDK]
+    Gen -->|Sync| Rust[Rust SDK]
+    Gen -->|Extension| A2A[A2A Proto]
+```
+
+## 📂 Repository Structure
 
 | File | Purpose |
 |------|---------|
-| `spec.yaml` | Signal and performance definitions |
-| `schema.json` | JSON Schema (auto-generated) |
-| `generated/` | Language-specific types (auto-generated) |
+| `spec.yaml` | **Master Definition**. Edit this file to change the spec. |
+| `schema.json` | JSON Schema (Draft 2020-12), auto-generated. |
+| `generated/` | Polyglot type definitions (do not edit manually). |
+| `scripts/` | Generation logic (Python). |
 
-## Signals
+## 📦 Generated Outputs
 
-| Signal | Scope | Description |
-|--------|-------|-------------|
-| `cue` | MCP + A2A | Trigger activation |
-| `fermata` | MCP + A2A | Hold for approval |
-| `attacca` | MCP + A2A | Immediate transition |
-| `vamp` | MCP + A2A | Repeat until condition |
-| `caesura` | MCP + A2A | Full stop |
-| `tacet` | A2A only | Agent inactive |
-| `downbeat` | A2A only | Global sync point |
+When `spec.yaml` is modified, CI automatically regenerates and pushes to downstream repositories:
 
-## Performance
+*   **Python**: `hct-mcp-signals` (Pydantic models)
+*   **TypeScript**: `@hct-mcp/signals` (Interfaces & Enums)
+*   **Go**: `hct-mcp-signals` (Structs)
+*   **Rust**: `hct-mcp-signals` (Enums)
+*   **Protobuf**: `hct-a2a` (gRPC definitions)
 
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| `tempo` | largo, andante, moderato, allegro, presto | Urgency/timing |
-| `dynamics` | pp, p, mf, f, ff | Resource intensity |
+## 🤝 Contributing
 
-## Generated Outputs
+1.  Modify `spec.yaml`.
+2.  Run `Justfile` or `python scripts/generate.py`.
+3.  Commit changes.
+4.  Open a PR.
 
-When `spec.yaml` changes, CI automatically generates:
-
-- **Python**: `generated/python/types.py` → synced to `hct-mcp-signals/python/hct_mcp_signals/spec.py`
-- **TypeScript**: `generated/typescript/types.ts` → synced to `hct-mcp-signals/npm/src/spec.ts`
-- **Go**: `generated/go/types.go` → synced to `hct-mcp-signals/go/spec.go`
-- **Python**: Enums and Pydantic models
-- **TypeScript**: Enums and Interface definitions
-- **Go**: Constants and Types
-- **Rust**: Serde-compatible Enums
-- **Protobuf**: `.proto` definitions (for gRPC/A2A)
-- **JSON Schema**: Draft 2020-12 schema.json` → synced to both packages
-
-## Downstream Packages
-
-- [hct-mcp-signals](https://github.com/stefanwiest/hct-mcp-signals) - MCP extension (Python, npm, Rust, Go)
-- [hct-a2a](https://github.com/stefanwiest/hct-a2a) - A2A extension
+**Note**: Do not manually edit files in `generated/` or `schema.json`. They will be overwritten.
 
 ## License
 
